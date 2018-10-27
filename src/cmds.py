@@ -167,9 +167,19 @@ def cmd_create(config, gh, org, args):
 
 cmd_list_parser = customargs.ArgumentParser(prog='list')
 cmd_list_parser.add_argument('--type', help="What category type to list")
+cmd_list_parser.add_argument('--details', help="Show extra repository details",
+        action="store_true")
 
 def cmd_list(config, gh, org, args):
     repos = get_challenge_repos(config, org)
+    category = None
+
+    if args.type:
+        category = validate_category(config, args.type)
+
+        if category is None:
+            log.error("Category '%s' not valid for the CTF", args.type)
+            return
 
     for r in repos:
         match = re.match(config.prefix + r'([a-zA-Z]+)([0-9]+)', r.name)
@@ -178,7 +188,25 @@ def cmd_list(config, gh, org, args):
             log.warning("Malformed CTF challenge repo name '%s'", r.name)
             continue
 
-        print("%s - category:%s #%d" %(r.name, match.group(1), int(match.group(2))))
+        info = "%s - category=%s num=%d" % (r.name,
+                match.group(1), int(match.group(2)))
+        extra = ""
+
+        if category and category["short_name"] != match.group(1):
+            continue
+
+        if args.details:
+            total_commits = 0
+            contributors = []
+
+            for c in r.get_contributors():
+                contributors += [c]
+
+            total_commits = sum(map(lambda x: x.contributions, contributors))
+            contributors = ",".join(map(lambda x: x.login, contributors))
+            extra = " commits=%d contributors=%s" % (total_commits, contributors)
+
+        print("%s%s" % (info, extra))
 
 cmd_delete_parser = customargs.ArgumentParser(prog='delete')
 cmd_delete_parser.add_argument('name', help="Which repository to delete")
