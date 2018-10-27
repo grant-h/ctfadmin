@@ -78,4 +78,5 @@ python src/ctfadmin.py
 ## TODO
 * Create a setup.py file for installation
 * Deploy to pypi
+* Add feature to automatically collect all repositories as submodules to a master repo
 
