@@ -106,6 +106,7 @@ def main():
         default="github.key")
     parser.add_argument('--config', help="The file containing your CTF configuration.",
         default="config.py")
+    parser.add_argument('command', nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
 
@@ -115,30 +116,10 @@ def main():
         log.error("You need to create a GitHub personal token and save it in the file '%s'", args.token_file)
         return 1
 
-    try:
-        config = open(args.config).read()
-    except IOError:
-        log.error("You need to create a configuration file as '%s'", args.config)
+    config = load_configuration(args.config)
+
+    if config is None:
         return 1
-
-    # evaluate the configuration file
-    try:
-        config = eval(config)
-    except Exception as e:
-        log.error('Your configuration file is malformed: %s', str(e))
-        return 1
-
-    # make it easier to use
-    config_n = ConfigDict()
-
-    for k,v in config.iteritems():
-        setattr(config_n, k, v)
-        config_n[k] = v
-
-    config = config_n
-
-    # validate it
-    config.variable = map(lambda x: os.path.join(config.template_dir, x), config.variable)
 
     org, g = github_init(config.organization, token)
 
@@ -151,11 +132,34 @@ def main():
             {'name' : 'delete', 'handler': cmd_delete, 'parser': cmd_delete_parser},
     ]
 
+    def dispatch_command(user_cmd, args):
+        ret = None
+
+        for cmd in commands:
+            if user_cmd == cmd["name"]:
+                try:
+                    args = cmd["parser"].parse_args(args)
+                    ret = cmd["handler"](config, g, org, args)
+                    return 0
+                except IOError as exc:
+                    if exc.message:
+                        print(exc.message)
+
+                    return 1
+
+        print("Unknown command '%s'" % (user_cmd))
+        return 1
+
+    # Non-interactive command dispatch
+    if len(args.command):
+        return dispatch_command(args.command[0], args.command[1:])
+
     try:
         readline.read_history_file(HISTORY_FILENAME)
     except IOError:
         pass
 
+    # Interactive command loop
     while True:
         try:
             action = raw_input('ctfadmin> ')
@@ -168,11 +172,13 @@ def main():
         if len(args) > 0:
             user_cmd = args[0]
             args = args[1:]
+        # no input? skip
         else:
             continue
 
         readline.write_history_file(HISTORY_FILENAME)
 
+        # handle built-in commands
         if user_cmd in ['?', 'help']:
             if len(args) >= 1:
                 found = False
@@ -192,22 +198,7 @@ def main():
         elif user_cmd in ["exit", "quit"]:
             break
         else:
-            ret = None
-            found = False
-            for cmd in commands:
-                if user_cmd == cmd["name"]:
-                    try:
-                        args = cmd["parser"].parse_args(args)
-                        ret = cmd["handler"](config, g, org, args)
-                    except IOError as exc:
-                        if exc.message:
-                            print(exc.message)
-
-                    found = True
-                    break
-
-            if not found:
-                print("Unknown command '%s'" % (user_cmd))
+            dispatch_command(user_cmd, args)
 
     return 0
 
