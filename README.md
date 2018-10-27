@@ -36,6 +36,32 @@ swctf_misc2 - category=misc num=2 commits=2 contributors=grant-h
 ctfadmin> exit
 ```
 
+### Non-interactive usage
+All commands that you can perform interactively (with the exception of built-in ones such as `help`) can be specified on the command line for scripting purposes.
+
+For example:
+```
+$ ctfadmin list
+CTFAdmin (v0.1.0)
+INFO: Loading organization 'swampctf'
+swctf_pwn1 - category=pwn num=1
+swctf_web1 - category=web num=1
+swctf_misc1 - category=misc num=1
+swctf_misc2 - category=misc num=2
+$ ctfadmin create --type misc --user grant-h
+CTFAdmin (v0.1.0)
+INFO: Loading organization 'swampctf'
+INFO: Creating repository swctf_misc3
+INFO: Description: SwampCTF 2019 Reversing challenge. Assigned to Grant Hernandez (@grant-h).
+INFO: Associating admin team 'SwampCTF' (2958310)
+INFO: Successfully created repository and associated user account
+INFO: Retrieved base commit on the master branch
+INFO: Building file system tree for 'template/'
+INFO: Walked 3 directories and 3 files (total bytes 7290)
+INFO: Creating git trees...
+INFO: Repository loaded with template files from 'template/'
+```
+
 ## Downloading and Using
 
 You will need to have the appropriate permissions on a GitHub organization and [personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) with the scopes of `repo` and `delete_repo`. Save your personal access token to a file named `github.key` in the root directory of CTFAdmin.
