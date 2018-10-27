@@ -47,7 +47,7 @@ def github_init(organization, token):
     return org, g
 
 def main():
-    print('CTF Repo Creator (v%s)' % __version__)
+    print('CTFAdmin (v%s)' % __version__)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--token-file', help="The file containing your GitHub personal token.",
