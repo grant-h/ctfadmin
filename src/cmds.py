@@ -127,12 +127,15 @@ def cmd_create(config, gh, org, args):
             # Feel free to extend this to meet your needs
     }
 
+    # add the base template directory to each variable file entry
+    variable_files = map(lambda x: os.path.join(config.template_dir, x), config.variable)
+
     def read_hook(path):
         try:
             with open(path, 'rb') as fp:
                 contents = fp.read()
 
-                if path in config.variable:
+                if path in variable_files:
                     # do some error checking just incase you mistype
                     found_variables = re.findall(r'%[-A-Za-z_0-9]+%', contents)
                     for var in found_variables:

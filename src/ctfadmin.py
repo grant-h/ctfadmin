@@ -46,6 +46,58 @@ def github_init(organization, token):
 
     return org, g
 
+def load_configuration(filename):
+    try:
+        config = open(filename).read()
+    except IOError:
+        log.error("You need to create a configuration file as '%s'", args.config)
+        return None
+
+    # evaluate the configuration file (please dont run ctfadmin on untrusted configs)
+    try:
+        config = eval(config)
+    except Exception as e:
+        log.error('Your configuration file is malformed: %s', str(e))
+        return None
+
+    # make it easier to use
+    config_n = ConfigDict()
+
+    for k,v in config.iteritems():
+        setattr(config_n, k, v)
+        config_n[k] = v
+
+    config = config_n
+
+    required_fields = [
+        {"key" : "categories", "ty" : list},
+        {"key" : "organization", "ty" : str},
+        {"key" : "admin_team", "ty" : str},
+        {"key" : "variable", "ty" : list},
+        {"key" : "template_dir", "ty" : str},
+        {"key" : "ctfname", "ty" : str},
+        {"key" : "prefix", "ty" : str},
+    ]
+
+    error = False
+    # Validate the fields and types
+    for field in required_fields:
+        if field["key"] not in config:
+            error = True
+            log.error("Configuration file is missing required field '%s' (%s)",
+                    field["key"], field["ty"])
+        else:
+            ft = type(config[field["key"]])
+            if ft != field["ty"]:
+                error = True
+                log.error("Configuration file type mismatch for field '%s' (expected %s, got %s)",
+                        field["key"], repr(field["ty"]), repr(ft))
+
+    if not error:
+        return config
+    else:
+        return None
+
 def main():
     print('CTFAdmin (v%s)' % __version__)
 
