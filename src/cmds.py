@@ -8,12 +8,6 @@ from repo import *
 from walk import create_git_tree
 import customargs
 
-try:
-    from IPython import embed
-except ImportError:
-    def embed():
-        pass
-
 log = logging.getLogger(__name__)
 
 cmd_create_parser = customargs.ArgumentParser(prog='create')
@@ -107,6 +101,12 @@ def cmd_create(config, gh, org, args):
     if new_repo is None:
         return
 
+    if ctf_admin_team:
+        try:
+            ctf_admin_team.set_repo_permission(new_repo, 'admin')
+        except github.GithubException as e:
+            log.warning("Failed to set the repository permissions to admin for team '%s'",
+                    str(t))
     try:
         head = new_repo.get_git_ref('heads/master')
         base_tree = new_repo.get_git_tree(head.object.sha)
@@ -119,7 +119,6 @@ def cmd_create(config, gh, org, args):
 
         delete_repo(new_repo)
         return None
-
 
     variables = {
             'CHALLENGE_CATEGORY_FULL' : category["full_name"],
