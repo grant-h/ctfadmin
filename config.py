@@ -1,0 +1,22 @@
+{
+    # Edit depending on your CTF
+    "categories" : [
+        {"short_name" : "pwn", "full_name": "Pwn"},
+        {"short_name" : "rev", "full_name": "Reversing"},
+        {"short_name" : "web", "full_name": "Web"},
+        {"short_name" : "crypto", "full_name": "Cryptography"},
+        {"short_name" : "for", "full_name": "Forensics"},
+        {"short_name" : "misc", "full_name": "Miscellaneous"},
+    ],
+
+    # The GitHub organization team name which will administrate
+    # the CTF. Optional: leave as ""
+    "admin_team" : "SwampCTF",
+
+    # The git repository template directory
+    "template_dir" : "template/",
+
+    # DO NOT CHANGE THESE AFTER CREATING REPOS
+    "ctfname" : "SwampCTF 2019",
+    "prefix" : "swctf_",
+}
