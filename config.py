@@ -9,9 +9,16 @@
         {"short_name" : "misc", "full_name": "Miscellaneous"},
     ],
 
+    # The GitHub organization where challenges will be held
+    # This should have the ability to create private repositories!
+    "organization" : "ufsit",
+
     # The GitHub organization team name which will administrate
     # the CTF. Optional: leave as ""
     "admin_team" : "SwampCTF",
+
+    # The file paths which will support variable replacement
+    "variable" : ['README.md'],
 
     # The git repository template directory
     "template_dir" : "template/",

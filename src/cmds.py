@@ -99,14 +99,10 @@ def cmd_create(config, gh, org, args):
                     config.admin_team)
             return
 
-    if len(repos):
-        new_repo = repos[0]
-        log.info("Going with repo %s", new_repo.name)
-    else:
-        # Create the new repo
-        # TODO: make sure admin team actually has admin (it has read by default)
-        new_repo = create_repo(org, repo_name, user_object,
-                desc, admin_user=ctf_admin_team)
+    # Create the new repo
+    # TODO: make sure admin team actually has admin (it has read by default)
+    new_repo = create_repo(org, repo_name, user_object,
+            desc, admin_user=ctf_admin_team)
 
     if new_repo is None:
         return
@@ -124,7 +120,37 @@ def cmd_create(config, gh, org, args):
         delete_repo(new_repo)
         return None
 
-    new_tree = create_git_tree(new_repo, config.template_dir)
+
+    variables = {
+            'CHALLENGE_CATEGORY_FULL' : category["full_name"],
+            'CHALLENGE_CATEGORY_SHORT' : category["short_name"],
+            'CTF_NAME' : config.ctfname,
+            # Feel free to extend this to meet your needs
+    }
+
+    def read_hook(path):
+        try:
+            with open(path, 'rb') as fp:
+                contents = fp.read()
+
+                if path in config.variable:
+                    # do some error checking just incase you mistype
+                    found_variables = re.findall(r'%[-A-Za-z_0-9]+%', contents)
+                    for var in found_variables:
+                        if var[1:len(var)-1] not in variables:
+                            log.warning("Unknown variable '%s' in file '%s'",
+                                    var, path)
+
+                    for var,repl in variables.iteritems():
+                        contents = contents.replace("%"+var+"%", repl)
+
+                return contents
+        except IOError:
+            log.error("Unable to open file '%s' for reading", path)
+            return None
+
+    # Load all of the files into a tree structure (contents and all)
+    new_tree = create_git_tree(new_repo, config.template_dir, file_read_hook=read_hook)
 
     if new_tree is None:
         return None

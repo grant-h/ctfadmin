@@ -47,7 +47,7 @@ class GitBlob:
 WARNING: This will assume a blank working tree, meaning all existing files
 will be deleted.
 """
-def create_git_tree(repo, directory):
+def create_git_tree(repo, directory, file_read_hook=None):
     object_tree = { "blobs" : [], "trees" : {} }
 
     # counters
@@ -91,14 +91,21 @@ def create_git_tree(repo, directory):
 
             # read in all of the file contents (this could be deferred for streaming)
             contents = ""
-            try:
-                with open(path, 'rb') as fp:
-                    contents = fp.read()
-                    file_bytes += len(contents)
-                    file_count += 1
-            except IOError:
-                log.error("Unable to open file '%s' for reading", path)
-                return None
+
+            if file_read_hook:
+                contents = file_read_hook(path)
+                if contents is None:
+                    return None
+            else:
+                try:
+                    with open(path, 'rb') as fp:
+                        contents = fp.read()
+                except IOError:
+                    log.error("Unable to open file '%s' for reading", path)
+                    return None
+
+            file_bytes += len(contents)
+            file_count += 1
 
             # create a tree element for this
             level["blobs"] += [GitBlob(f, ty, content=contents)]

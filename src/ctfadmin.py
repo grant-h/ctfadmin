@@ -44,9 +44,6 @@ def main():
     print('CTF Repo Creator (v%s)' % __version__)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--organization',
-        help="The GitHub organization that the CTF repos are created under.",
-        default="ufsit")
     parser.add_argument('--token-file', help="The file containing your GitHub personal token.",
         default="github.key")
     parser.add_argument('--config', help="The file containing your CTF configuration.",
@@ -66,12 +63,14 @@ def main():
         log.error("You need to create a configuration file as '%s'", args.config)
         return 1
 
+    # evaluate the configuration file
     try:
         config = eval(config)
     except Exception as e:
         log.error('Your configuration file is malformed: %s', str(e))
         return 1
 
+    # make it easier to use
     config_n = ConfigDict()
 
     for k,v in config.iteritems():
@@ -80,7 +79,10 @@ def main():
 
     config = config_n
 
-    org, g = github_init(args.organization, token)
+    # validate it
+    config.variable = map(lambda x: os.path.join(config.template_dir, x), config.variable)
+
+    org, g = github_init(config.organization, token)
 
     if org is None:
         return 1
