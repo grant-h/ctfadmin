@@ -63,6 +63,6 @@ def get_challenge_repos(config, org):
         if repo.name.startswith(config.prefix):
             challenge_repos += [repo]
 
-    log.info('Found %d existing challenge repositories' % len(challenge_repos))
+    log.debug('Found %d existing challenge repositories' % len(challenge_repos))
 
     return challenge_repos

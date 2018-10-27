@@ -5,6 +5,12 @@ import logging
 import readline
 import shlex
 
+try:
+    from IPython import embed
+except ImportError:
+    def embed():
+        pass
+
 import github
 from github import Github
 
@@ -129,6 +135,8 @@ def main():
             else:
                 for cmd in commands:
                     print('%s' % (cmd["parser"].format_help().split("\n")[0][7:]))
+        elif user_cmd == "ipython":
+            embed()
         elif user_cmd in ["exit", "quit"]:
             break
         else:
