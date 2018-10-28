@@ -3,14 +3,19 @@ import os
 import re
 import logging
 import github
+import argparse
 
 from repo import *
 from walk import create_git_tree
-import customargs
 
 log = logging.getLogger(__name__)
 
-cmd_create_parser = customargs.ArgumentParser(prog='create')
+class ArgumentParser(argparse.ArgumentParser):
+    def exit(self, status=0, message=None):
+        raise IOError(message)
+        pass
+
+cmd_create_parser = ArgumentParser(prog='create')
 cmd_create_parser.add_argument('--type',
         help="What category type to create",
         required=True
@@ -168,7 +173,7 @@ def cmd_create(config, gh, org, args):
 
     return
 
-cmd_list_parser = customargs.ArgumentParser(prog='list')
+cmd_list_parser = ArgumentParser(prog='list')
 cmd_list_parser.add_argument('--type', help="What category type to list")
 cmd_list_parser.add_argument('--details', help="Show extra repository details",
         action="store_true")
@@ -211,7 +216,7 @@ def cmd_list(config, gh, org, args):
 
         print("%s%s" % (info, extra))
 
-cmd_delete_parser = customargs.ArgumentParser(prog='delete')
+cmd_delete_parser = ArgumentParser(prog='delete')
 cmd_delete_parser.add_argument('name', help="Which repository to delete")
 cmd_delete_parser.add_argument('--force', help="Forces the deletion of repositories with more than the default commit count", action="store_true")
 

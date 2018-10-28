@@ -5,7 +5,7 @@ import os
 log = logging.getLogger(__name__)
 
 object_types = {
-        'directory' : '040000', # aka directory
+        'directory' : '040000',
         'file' : '100644',
         'executable' : '100755',
         # XXX: we do not support submodules or symlinks
