@@ -30,21 +30,21 @@ def github_init(organization, token):
     log.info("Loading organization '%s'", organization)
 
     # First create a Github instance using an access token
-    g = Github(token)
+    gh = Github(token)
 
     try:
-        org = g.get_organization(organization)
+        org = gh.get_organization(organization)
     except requests.exceptions.InvalidHeader as e:
         log.error('Unable to get the organization page: %s', str(e))
         log.error('your token file is probably not correct')
-        return None
+        return None, None
 
     except github.GithubException as e:
         log.error('Unable to get the organization page: %s', str(e))
         log.error('Double check that you have access to the organization and that your token is valid')
-        return None
+        return None, None
 
-    return org, g
+    return org, gh
 
 def load_configuration(filename):
     try:
@@ -121,9 +121,9 @@ def main():
     if config is None:
         return 1
 
-    org, g = github_init(config.organization, token)
+    org, gh = github_init(config.organization, token)
 
-    if org is None:
+    if org is None or gh is None:
         return 1
 
     commands = [
@@ -139,7 +139,7 @@ def main():
             if user_cmd == cmd["name"]:
                 try:
                     args = cmd["parser"].parse_args(args)
-                    ret = cmd["handler"](config, g, org, args)
+                    ret = cmd["handler"](config, gh, org, args)
                     return 0
                 except IOError as exc:
                     if exc.message:
