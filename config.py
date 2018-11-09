@@ -11,11 +11,11 @@
 
     # The GitHub organization where challenges will be held
     # This should have the ability to create private repositories!
-    "organization" : "ufsit",
+    "organization" : "ctfadmins",
 
     # The GitHub organization team name which will administrate
     # the CTF. Optional: leave as ""
-    "admin_team" : "SwampCTF",
+    "admin_team" : "PwnCTF",
 
     # The file paths which will support variable replacement
     "variable" : ['README.md'],
@@ -24,6 +24,6 @@
     "template_dir" : "template/",
 
     # DO NOT CHANGE THESE AFTER CREATING REPOS
-    "ctfname" : "SwampCTF 2019",
-    "prefix" : "swctf_",
+    "ctfname" : "PwnCTF 2001",
+    "prefix" : "pwctf_",
 }

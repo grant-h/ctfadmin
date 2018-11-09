@@ -1,27 +1,27 @@
 # CTFAdmin
 
 A tool to help automate the creation and permissions of CTF challenge repositories.
-This tool is used for SwampCTF 2019 to help distribute private, challenge-specific repositories for authors to commit to.
+This tool is used for ctfadmins 2019 to help distribute private, challenge-specific repositories for authors to commit to.
 It was designed to be easily configurable for any CTF event with custom challenge categories and repository templates.
 
 ## Example usage
 
 ```
 CTFAdmin (v0.1.0)
-INFO: Loading organization 'swampctf'
+INFO: Loading organization 'ctfadmins'
 ctfadmin> help
 create [-h] --type TYPE --user USER
 list [-h] [--type TYPE] [--details]
 delete [-h] [--force] name
 ctfadmin> list
-swctf_pwn1 - category=pwn num=1
-swctf_web1 - category=web num=1
-swctf_misc1 - category=misc num=1
-swctf_misc2 - category=misc num=2
+pwctf_pwn1 - category=pwn num=1
+pwctf_web1 - category=web num=1
+pwctf_misc1 - category=misc num=1
+pwctf_misc2 - category=misc num=2
 ctfadmin> create --type rev --user grant-h
-INFO: Creating repository swctf_rev1
-INFO: Description: SwampCTF 2019 Reversing challenge. Assigned to Grant Hernandez (@grant-h).
-INFO: Associating admin team 'SwampCTF' (2958310)
+INFO: Creating repository pwctf_rev1
+INFO: Description: ctfadmins 2019 Reversing challenge. Assigned to Grant Hernandez (@grant-h).
+INFO: Associating admin team 'ctfadmins' (2958310)
 INFO: Successfully created repository and associated user account
 INFO: Retrieved base commit on the master branch
 INFO: Building file system tree for 'template/'
@@ -29,10 +29,10 @@ INFO: Walked 3 directories and 3 files (total bytes 7290)
 INFO: Creating git trees...
 INFO: Repository loaded with template files from 'template/'
 ctfadmin> list --details
-swctf_pwn1 - category=pwn num=1 commits=2 contributors=grant-h
-swctf_web1 - category=web num=1 commits=2 contributors=grant-h
-swctf_misc1 - category=misc num=1 commits=2 contributors=grant-h
-swctf_misc2 - category=misc num=2 commits=2 contributors=grant-h
+pwctf_pwn1 - category=pwn num=1 commits=2 contributors=grant-h
+pwctf_web1 - category=web num=1 commits=2 contributors=grant-h
+pwctf_misc1 - category=misc num=1 commits=2 contributors=grant-h
+pwctf_misc2 - category=misc num=2 commits=2 contributors=grant-h
 ctfadmin> exit
 ```
 
@@ -43,17 +43,17 @@ For example:
 ```
 $ ctfadmin list
 CTFAdmin (v0.1.0)
-INFO: Loading organization 'swampctf'
-swctf_pwn1 - category=pwn num=1
-swctf_web1 - category=web num=1
-swctf_misc1 - category=misc num=1
-swctf_misc2 - category=misc num=2
+INFO: Loading organization 'ctfadmins'
+pwctf_pwn1 - category=pwn num=1
+pwctf_web1 - category=web num=1
+pwctf_misc1 - category=misc num=1
+pwctf_misc2 - category=misc num=2
 $ ctfadmin create --type misc --user grant-h
 CTFAdmin (v0.1.0)
-INFO: Loading organization 'swampctf'
-INFO: Creating repository swctf_misc3
-INFO: Description: SwampCTF 2019 Reversing challenge. Assigned to Grant Hernandez (@grant-h).
-INFO: Associating admin team 'SwampCTF' (2958310)
+INFO: Loading organization 'ctfadmins'
+INFO: Creating repository pwctf_misc3
+INFO: Description: ctfadmins 2019 Reversing challenge. Assigned to Grant Hernandez (@grant-h).
+INFO: Associating admin team 'ctfadmins' (2958310)
 INFO: Successfully created repository and associated user account
 INFO: Retrieved base commit on the master branch
 INFO: Building file system tree for 'template/'
