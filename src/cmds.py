@@ -189,7 +189,9 @@ def cmd_list(config, gh, org, args):
             log.error("Category '%s' not valid for the CTF", args.type)
             return
 
-    for r in repos:
+    repos_sorted = sorted(repos, key=lambda x: x.name)
+
+    for r in repos_sorted:
         match = re.match(config.prefix + r'([a-zA-Z]+)([0-9]+)', r.name)
 
         if not match:
