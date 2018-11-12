@@ -59,8 +59,6 @@ def cmd_create(config, gh, org, args):
     if user_object is None:
         return
 
-    full_name = user_object.name
-
     # Fetch all the challenge repos to determine the next numbered one to create
     repos = get_challenge_repos(config, org)
 
@@ -79,7 +77,12 @@ def cmd_create(config, gh, org, args):
     # Create the next numbered challenge
     maxnumber += 1
     repo_name = repo_name + str(maxnumber)
-    desc = """{ctfname} {category_fn} challenge. Assigned to {full_name} (@{username}).""".format(**locals())
+    full_name = user_object.name
+
+    if full_name:
+        desc = """{ctfname} {category_fn} challenge. Assigned to {full_name} (@{username}).""".format(**locals())
+    else:
+        desc = """{ctfname} {category_fn} challenge. Assigned to @{username}.""".format(**locals())
 
     # Get all the organization teams to find the admin one (if any)
     teams = org.get_teams()
