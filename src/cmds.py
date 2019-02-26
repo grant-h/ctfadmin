@@ -10,6 +10,8 @@ from walk import create_git_tree
 
 log = logging.getLogger(__name__)
 
+INITIAL_COMMIT_NUM = 2
+
 class ArgumentParser(argparse.ArgumentParser):
     def exit(self, status=0, message=None):
         raise IOError(message)
@@ -215,12 +217,10 @@ def cmd_delete(config, gh, org, args):
 
     for r in repos:
         if r.name == args.name:
-            total_commits = 0
-            for c in r.get_contributors():
-                total_commits += c.contributions
+            total_commits = r.get_commits().totalCount
 
             # the repository has been modified
-            if total_commits > 2 and not args.force:
+            if total_commits > INITIAL_COMMIT_NUM and not args.force:
                 log.warning("Refusing to delete repository with more commits than the default")
                 log.warning("Specify the --force flag to confirm the deletion")
                 return
