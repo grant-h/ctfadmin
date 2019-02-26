@@ -229,3 +229,51 @@ def cmd_delete(config, gh, org, args):
             return
 
     log.error("Unable to find the repository '%s'", args.name)
+
+cmd_stats_parser = ArgumentParser(prog='stats')
+cmd_stats_parser.add_argument('report_type', choices=["progress"],
+        help="What report should be generated")
+
+def cmd_stats(config, ch, org, args):
+    repos = get_challenge_repos(config, org)
+
+    report = args.report_type
+
+    repo_stats = []
+
+    log.info("Collecting metadata from %d repos...", len(repos))
+
+    for r in repos:
+        stat = {}
+        stat["name"] = r.name
+        stat["commits"] = r.get_commits().totalCount
+        stat["category"] = r.category
+        stat["num"] = r.chal_num
+        repo_stats += [stat]
+
+    output = ""
+
+    if report == "progress":
+        started = list(filter(lambda x: x["commits"] > INITIAL_COMMIT_NUM, repo_stats))
+
+        output += "[%s Challenge Progress]\n" % (config.ctfname)
+
+        repo_breakdown = {}
+        started_repo_breakdown = {}
+
+        for st in repo_stats:
+            repo_breakdown[st["category"]] = repo_breakdown.get(st["category"], 0) + 1
+        for st in started:
+            started_repo_breakdown[st["category"]] = started_repo_breakdown.get(st["category"], 0) + 1
+
+        repo_category_freq = sorted(repo_breakdown.items(), key=lambda x: x[0])
+        repo_breakdown_str = ["%d %s" % (n, c) for c, n in repo_category_freq]
+        repo_breakdown_str = "(%s)" % ", ".join(repo_breakdown_str)
+
+        started_repo_breakdown_str = ["%d/%d %s" % (started_repo_breakdown.get(c, 0), n, c) for c, n in repo_category_freq]
+        started_repo_breakdown_str = "(%s)" % ", ".join(started_repo_breakdown_str)
+
+        output += "Allocated challenges: %d %s\n" % (len(repos), repo_breakdown_str)
+        output += "Started challenges (by commits): %d/%d %s\n" % (len(started), len(repos), started_repo_breakdown_str)
+
+    print(output)
