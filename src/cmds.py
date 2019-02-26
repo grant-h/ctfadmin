@@ -25,13 +25,6 @@ cmd_create_parser.add_argument('--user',
         required=True
 )
 
-def validate_category(config, category):
-    for cat in config.categories:
-        if category == cat["short_name"] or category == cat["full_name"]:
-            return cat
-
-    return None
-
 def fetch_user(gh, username):
     try:
         user_object = gh.get_user(username)
@@ -183,41 +176,33 @@ cmd_list_parser.add_argument('--details', help="Show extra repository details",
 
 def cmd_list(config, gh, org, args):
     repos = get_challenge_repos(config, org)
-    category = None
+    target_category = None
 
     if args.type:
-        category = validate_category(config, args.type)
+        target_category = validate_category(config, args.type)
 
-        if category is None:
+        if target_category is None:
             log.error("Category '%s' not valid for the CTF", args.type)
             return
 
-    repos_sorted = sorted(repos, key=lambda x: x.name)
-
-    for r in repos_sorted:
-        match = re.match(config.prefix + r'([a-zA-Z]+)([0-9]+)', r.name)
-
-        if not match:
-            log.warning("Malformed CTF challenge repo name '%s'", r.name)
-            continue
-
-        info = "%s - category=%s num=%d" % (r.name,
-                match.group(1), int(match.group(2)))
+    for r in repos:
+        name = r.name
+        category = r.category
+        info = "%s - \"%s\"" % (name, r.description)
         extra = ""
 
-        if category and category["short_name"] != match.group(1):
+        if target_category and target_category["short_name"] != category:
             continue
 
         if args.details:
-            total_commits = 0
-            contributors = []
+            total_commits = r.get_commits().totalCount
+            #contributors = []
 
-            for c in r.get_contributors():
-                contributors += [c]
+            #for c in r.get_contributors():
+            #    contributors += [c]
 
-            total_commits = sum(map(lambda x: x.contributions, contributors))
-            contributors = ",".join(map(lambda x: x.login, contributors))
-            extra = " commits=%d contributors=%s" % (total_commits, contributors)
+            #contributors = ",".join(map(lambda x: x.login, contributors))
+            extra = " commits=%d" % (total_commits)
 
         print("%s%s" % (info, extra))
 

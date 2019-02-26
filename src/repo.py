@@ -1,5 +1,6 @@
 import logging
 import github
+import re
 
 log = logging.getLogger(__name__)
 
@@ -56,13 +57,36 @@ def create_repo(org, repo_name, manager_user, desc, admin_user=None):
 
     return new_repo
 
+def validate_category(config, category):
+    for cat in config.categories:
+        if category == cat["short_name"] or category == cat["full_name"]:
+            return cat
+
+    return None
+
 def get_challenge_repos(config, org):
     # Get all of the existing challenge repos, if any
     challenge_repos = []
     for repo in org.get_repos():
-        if repo.name.startswith(config.prefix):
-            challenge_repos += [repo]
+        name = repo.name
+        match = re.match(config.prefix + r'([a-zA-Z]+)([0-9]+)', name)
+
+        if not match:
+            continue
+
+        # pimp the repo object with swampctf specific stuff
+        repo.category = match.group(1)
+
+        if validate_category(config, repo.category) is None:
+            log.warning("Malformed CTF repository '%s': invalid category '%s'", name, repo.category)
+            continue
+
+        repo.chal_num = int(match.group(2))
+
+        challenge_repos += [repo]
 
     log.debug('Found %d existing challenge repositories' % len(challenge_repos))
 
-    return challenge_repos
+    repos_sorted = sorted(challenge_repos, key=lambda x: x.name)
+
+    return repos_sorted
