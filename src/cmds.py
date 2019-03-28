@@ -245,7 +245,9 @@ def cmd_stats(config, ch, org, args):
 
     for r in repos:
         stat = {}
+        stat["repo"] = r
         stat["name"] = r.name
+        stat["author"] = re.search(r'@([a-zA-Z0-9]+)', r.description).group(1).lower()
         stat["commits"] = r.get_commits().totalCount
         stat["category"] = r.category
         stat["num"] = r.chal_num
@@ -255,16 +257,20 @@ def cmd_stats(config, ch, org, args):
 
     if report == "progress":
         started = list(filter(lambda x: x["commits"] > INITIAL_COMMIT_NUM, repo_stats))
+        not_started = list(filter(lambda x: x["commits"] <= INITIAL_COMMIT_NUM, repo_stats))
 
         output += "[%s Challenge Progress]\n" % (config.ctfname)
 
         repo_breakdown = {}
         started_repo_breakdown = {}
+        not_started_repo_by_author = {}
 
         for st in repo_stats:
             repo_breakdown[st["category"]] = repo_breakdown.get(st["category"], 0) + 1
         for st in started:
             started_repo_breakdown[st["category"]] = started_repo_breakdown.get(st["category"], 0) + 1
+        for st in not_started:
+            not_started_repo_by_author[st["author"]] = not_started_repo_by_author.get(st["author"], []) + [st]
 
         repo_category_freq = sorted(repo_breakdown.items(), key=lambda x: x[0])
         repo_breakdown_str = ["%d %s" % (n, c) for c, n in repo_category_freq]
@@ -275,5 +281,24 @@ def cmd_stats(config, ch, org, args):
 
         output += "Allocated challenges: %d %s\n" % (len(repos), repo_breakdown_str)
         output += "Started challenges (by commits): %d/%d %s\n" % (len(started), len(repos), started_repo_breakdown_str)
+
+        output += "User Reminders:\n"
+
+        for user, user_repos in sorted(not_started_repo_by_author.items(), key=lambda x: x[0]):
+            missing = len(user_repos)
+            repo_names = sorted(list(map(lambda x: x["name"], user_repos)))
+            report_line = ""
+            from datetime import datetime
+            today = str(datetime.today())
+
+            if missing > 1:
+                chal_pl = "challenges"
+                missing_line = "assigned challenges *[%s]* have" % (", ".join(repo_names[:-1]) + " and " + repo_names[-1])
+            else:
+                chal_pl = "challenge"
+                missing_line = "assigned challenge *[%s]* has" % (repo_names[0])
+
+            output += "Hi %s, this is a semi-automated message informing you that your %s zero commits as of today.\n" % (user, missing_line)
+            output += "Please commit what you have, regardless if it is complete ASAP, or declare your %s as Will Not Write (WNR).\n\n" % (chal_pl)
 
     print(output)
