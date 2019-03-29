@@ -4,6 +4,29 @@ import re
 
 log = logging.getLogger(__name__)
 
+object_types = {
+        'directory' : '040000',
+        'file' : '100644',
+        'executable' : '100755',
+        'submodule' : '160000',
+        # XXX: we do not support symlinks
+        # https://developer.github.com/v3/git/trees/#create-a-tree
+}
+
+class GitSubmodule(object):
+    def __init__(self, path, url, branch, commit):
+        self.path = path
+        self.url = url
+        self.branch = branch
+        self.commit = commit
+
+    def __str__(self):
+        return """
+[submodule "%s"]
+\tpath = %s
+\turl = %s
+\tbranch = %s""" % (self.path, self.path, self.url, self.branch)
+
 def delete_repo(repo):
     try:
         repo.delete()
@@ -14,7 +37,7 @@ def delete_repo(repo):
         log.error("Reason: %s", str(e))
         return False
 
-def create_repo(org, repo_name, manager_user, desc, admin_user=None):
+def create_repo(org, repo_name, desc, manager_user=None, admin_user=None):
     log.info('Creating repository %s', repo_name)
     log.info('Description: %s', desc)
 
@@ -41,19 +64,21 @@ def create_repo(org, repo_name, manager_user, desc, admin_user=None):
         return None
 
     # Add a single collaborator to with push access to the new repository
-    try:
-        new_repo.add_to_collaborators(manager_user, 'push')
-    except github.GithubException as e:
-        log.error("Unable to add collaborator '%s' to repository '%s'",
-                manager_user.username, repo_name)
-        log.error("Reason: %s", str(e))
-        log.error("Rolling back created repo...")
+    if manager_user:
+        try:
+            new_repo.add_to_collaborators(manager_user, 'push')
+        except github.GithubException as e:
+            log.error("Unable to add collaborator '%s' to repository '%s'",
+                    manager_user.username, repo_name)
+            log.error("Reason: %s", str(e))
+            log.error("Rolling back created repo...")
 
-        delete_repo(new_repo)
+            delete_repo(new_repo)
 
-        return None
-
-    log.info("Successfully created repository and associated user account")
+            return None
+        log.info("Successfully created repository %s", repo_name)
+    else:
+        log.info("Successfully created repository %s and associated user account", repo_name)
 
     return new_repo
 

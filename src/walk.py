@@ -1,16 +1,9 @@
 import logging
 import github
 import os
+from repo import object_types
 
 log = logging.getLogger(__name__)
-
-object_types = {
-        'directory' : '040000',
-        'file' : '100644',
-        'executable' : '100755',
-        # XXX: we do not support submodules or symlinks
-        # https://developer.github.com/v3/git/trees/#create-a-tree
-}
 
 # A helper class for our DFS traversal of the tree data structure
 class TreeObj:
