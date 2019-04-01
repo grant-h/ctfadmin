@@ -350,7 +350,7 @@ def cmd_coalesce(config, gh, org, args):
         head = new_repo.get_git_ref('heads/master')
         base_tree = new_repo.get_git_tree(head.object.sha)
         base_commit = new_repo.get_git_commit(head.object.sha)
-        log.info('Retrieved base commit on the master branch')
+        log.info('Retrieved base commit for %s', master_repo_name)
     except github.GithubException as e:
         log.error('Unable to retrieve base commit, tree, or reference')
         log.error('Reason: %s', str(e))
@@ -375,11 +375,16 @@ def cmd_coalesce(config, gh, org, args):
     for cat, repo_list in sorted(by_category.items()):
         elements = []
         for r in repo_list:
+            repo_name = '%s%d' % (cat, r.chal_num)
+            path = '%s/%s' % (cat, repo_name)
+            branch = 'master'
+            url = r.ssh_url
+
             try:
-                r_head = r.get_git_ref('heads/master')
+                r_head = r.get_git_ref('heads/%s' % branch)
                 r_base_tree = r.get_git_tree(r_head.object.sha)
                 r_base_commit = r.get_git_commit(r_head.object.sha)
-                log.info('Retrieved base commit for %s on the master branch', r.name)
+                log.info('Retrieved base commit for %s on the %s branch', r.name, branch)
             except github.GithubException as e:
                 log.error('Unable to retrieve base commit, tree, or reference')
                 log.error('Reason: %s', str(e))
@@ -388,10 +393,6 @@ def cmd_coalesce(config, gh, org, args):
                 delete_repo(new_repo)
                 return None
 
-            repo_name = '%s%d' % (cat, r.chal_num)
-            path = '%s/%s' % (cat, repo_name)
-            branch = 'master'
-            url = r.ssh_url
             commit = r_head.object.sha
 
             submodule = GitSubmodule(path, url, branch, commit)
@@ -441,8 +442,3 @@ def cmd_coalesce(config, gh, org, args):
         return
 
     log.info("Repository ready: %s", new_repo.html_url)
-
-        #cat_tree = github.InputGitTreeElement(cat, object_types["directory"], 'tree')
-            #category_trees[cat] = cat_tree
-                    #object_types["directory"], 'tree', sha=x[1]["obj"].sha), node.tree["trees"].items())
-
