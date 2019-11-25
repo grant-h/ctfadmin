@@ -102,8 +102,8 @@ def cmd_create(config, gh, org, args):
     ctf_admin_team = get_admin_team(config, org)
 
     # Create the new repo
-    new_repo = create_repo(org, repo_name, user_object,
-            desc, admin_user=ctf_admin_team)
+    new_repo = create_repo(org, repo_name, desc, manager_user=user_object,
+            admin_user=ctf_admin_team)
 
     if new_repo is None:
         return
@@ -438,7 +438,8 @@ def cmd_coalesce(config, gh, org, args):
     except github.GithubException as e:
         log.error("Failed to create commit object")
         log.error("Reason: %s", e)
-        # TODO: delete trees and blobs
+
+        delete_repo(new_repo)
         return
 
-    log.info("Repository ready: %s", new_repo.html_url)
+    log.info("Master repository ready: %s", new_repo.html_url)

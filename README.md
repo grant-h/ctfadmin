@@ -26,7 +26,7 @@ To use CTFAdmin for your CTF, you need to edit the `config.py` file that ships w
 - [X] `create` - Creates a single challenge repository from a template directory
 - [X] `list` - Lists all challenge repositories
 - [X] `delete` - Removes a single challenge repository
-- [ ] `coalesce` - Creates and updates a single meta-repository containing submodules of all the challenges. Useful for challenge deployment and testing
+- [X] `coalesce` - Creates and updates a single meta-repository containing submodules of all the challenges. Useful for challenge deployment and testing
 - [ ] `squash` - This is used after the CTF to squash all repositories into an exportable format for publishing
 - [ ] `cleanup` - This is used after the CTF to remove all of the challenge repositories
 
