@@ -132,6 +132,7 @@ def main():
             {'name' : 'delete', 'handler': cmd_delete, 'parser': cmd_delete_parser},
             {'name' : 'stats', 'handler': cmd_stats, 'parser': cmd_stats_parser},
             {'name' : 'coalesce', 'handler': cmd_coalesce, 'parser': cmd_coalesce_parser},
+            {'name' : 'cleanup', 'handler': cmd_cleanup, 'parser': cmd_cleanup_parser},
     ]
 
     def dispatch_command(user_cmd, args):

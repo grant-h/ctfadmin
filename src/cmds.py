@@ -310,6 +310,42 @@ def cmd_stats(config, gh, org, args):
 
     print(output)
 
+cmd_cleanup_parser = ArgumentParser(prog='cleanup')
+cmd_cleanup_parser.add_argument("--i-solemnly-swear-i-am-up-to-no-good", action='store_true')
+
+def cmd_cleanup(config, gh, org, args):
+    repos = get_challenge_repos(config, org)
+
+    if len(repos) == 0:
+        log.error("No repos to cleanup")
+        return
+
+    if not args.i_solemnly_swear_i_am_up_to_no_good:
+        log.error("Required kill-switch argument not found. Not deleting anything")
+        return
+
+    action_timeout = 120
+
+    log.warning("/!\ !!!!!!!!!!! WARNING !!!!!!!!!!! /!\\")
+    log.warning("/!\ !!!!!!!!!!! WARNING !!!!!!!!!!! /!\\")
+    log.warning("/!\ !!!!!!!!!!! WARNING !!!!!!!!!!! /!\\")
+    log.warning("YOU ARE ABOUT TO *PERMANENTLY* DELETE *ALL* %d EVENT REPOS!", len(repos))
+    log.warning("WILL DELETE: %s", ", ".join([x.name for x in repos]))
+    log.warning("THIS WILL CAUSE IRREPARABLE DATA LOSS. YOU HAVE %d SECONDS TO CTRL+C", action_timeout)
+
+    import time
+    for i in range(action_timeout):
+        sys.stderr.write("%d." % (action_timeout - i))
+        time.sleep(1)
+
+    sys.stderr.write("\n")
+
+    for r in repos:
+        log.info("Deleting %s", r.name)
+        delete_repo(r)
+
+    return
+
 cmd_coalesce_parser = ArgumentParser(prog='coalesce')
 
 def cmd_coalesce(config, gh, org, args):
