@@ -16,7 +16,7 @@ from github import Github
 
 from cmds import *
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 HISTORY_FILENAME = ".ctfadmin"
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
